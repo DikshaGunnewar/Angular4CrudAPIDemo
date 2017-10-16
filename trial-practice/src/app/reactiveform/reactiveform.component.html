@@ -1,0 +1,133 @@
+<div class="container">
+  <div class="row">
+     <div class="col-md-6 col-md-offset-4">
+        <h3 *ngIf="itemIdToUpdate; else create"> 
+             Update Item for Id: {{itemIdToUpdate}}
+        </h3>
+        <ng-template #create>
+            <h1>Register Here</h1>
+        </ng-template>
+     <form [formGroup]="myform" (ngSubmit)="onCreate(myform.value)" method="POST">
+            <div class="form-group">
+                <label for="name">Name</label>
+                  <input type="text" id="name"  name="name" class="form-control" formControlName="name" />
+                <span *ngIf="name.errors && (name.dirty  || myform.submitted) && name.errors.required" class="alert alert-danger">Name please</span>
+            </div>
+            <div class="form-group">
+                  <label for="email">Email</label>
+                  <input  type="email" id="email" email name="email" class="form-control" formControlName="email" />
+                  <span *ngIf="email.errors && (email.dirty || myform.submitted) && email.errors.required" class="alert alert-danger">Email please</span>
+            </div>
+            <div class="form-group">
+                  <label for="password">Password</label>
+                  <input type="text" id="password" name="password" class="form-control" formControlName="password" />
+                  <span *ngIf="password.errors && (password.dirty || myform.submitted) && password.errors.required" class="alert alert-danger">Password please</span>
+            </div>
+            <button  type="submit" class="btn btn-primary"  [disabled]="!myform.valid" *ngIf="!itemIdToUpdate">CREATE</button>  
+		    <button type="submit" class="btn btn-primary"  *ngIf="itemIdToUpdate">UPDATE</button>  
+	        <button (click)="backToCreateItem()" *ngIf="itemIdToUpdate">Go Back</button>  
+        </form>
+
+   <div *ngIf="statusCode; else processing">
+        <div *ngIf="statusCode === 201" [ngClass]="'success'">
+           Article added successfully.
+         </div>
+        <div *ngIf="statusCode === 409" [ngClass]="'success'">
+           Article already exists.
+        </div>
+        <div *ngIf="statusCode === 200" [ngClass]="'success'">
+           Article updated successfully.
+       </div>
+        <div *ngIf="statusCode === 204" [ngClass]="'success'">
+            Article deleted successfully.
+        </div>
+        <div *ngIf="statusCode === 500" [ngClass]="'error'">
+             Internal Server Error.
+        </div>
+    </div>
+    <ng-template #processing>
+        <img *ngIf="requestProcessing" src="assets/images/loading.gif">
+    </ng-template>
+     </div>
+   </div>
+</div>
+<br>
+<hr>
+<!--To display data-->
+<div class="container">
+  <table class=" table table-striped">
+    <thead>
+       <tr>
+           <th>Id</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Password</th>
+          <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody *ngFor="let post of values; let i = index">
+      <tr>
+        <td>{{i+1}}</td>
+        <td>{{post.Id}}</td>
+        <td>{{post.name}}</td>
+        <td>{{post.email}}</td>
+        <td>{{post.password}}</td>      
+        <td>
+            <!--edit modal-->
+        <button type="button" value="Update" class="btn btn-warning"  (click)='openModalForEdit(updatemember,post)'>Update</button>
+         <ng-template #updatemember>
+             <div class="modal-header">
+                 <h4 class="modal-title pull-left">Updating Current Member</h4>
+                    <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+                      <span aria-hidden="true">&times;</span>
+                  </button>
+               </div>
+             <div class="modal-body">
+                <form  class="form-horizontal" [formGroup]="myform" (ngSubmit)="updatePost(myform.value)">
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                          <label class="control-label">Name</label>
+                          <input type="text" id="name" [(ngModel)]="post.name" class="form-control" formControlName="name">
+                      </div>
+                    </div>
+            <div class="form-group">
+              <div class="col-sm-12">
+                  <label class="control-label">Email</label>
+                     <input type="text" id="email" [(ngModel)]="post.email" class="form-control" formControlName="email">
+                     </div>
+                 </div>
+        <div class="form-group">
+            <div class="col-sm-12">
+               <label class="control-label">Password</label>
+                   <input type="email" id="password" [(ngModel)]="post.password" class="form-control" formControlName="password">
+                </div>
+          </div>
+          <button type="submit" class="btn btn-success" (click)="modalRef.hide()" > Submit</button>
+      </form>
+  </div>
+</ng-template>
+ <!--delete modal-->
+<button type="button" value="Delete" class="btn btn-danger" (click)='openModalforDelete(deletemember,post);'>Delete</button>        
+    <ng-template #deletemember>
+          <div class="modal-header">
+              <h4 class="modal-title pull-left">Deleting Current User</h4>
+                  <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+                      <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+              <form  class="form-horizontal" [formGroup]="myform" (ngSubmit)="deletePost(post)">     
+                  <div class="modal-body">
+                      <div class="container">
+                            Do You want to delete this member?       
+                         </div>
+                       <div class="submitbtn">
+                       <button type="submit"  class="btn btn-danger" (click)="modalRef.hide()">Delete</button>
+                       </div>  
+                  </div>
+              </form>
+         </ng-template>
+       </td>  
+     </tr>
+  </tbody>
+ </table>
+</div>
